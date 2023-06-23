@@ -7,23 +7,40 @@ import ThemeToggle from './ThemeToggle.vue';
 const pokeList = ref([])
 
 
-function fetchKantoPokemon(){
- fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
-  .then(response => response.json())
-  .then(function(allpokemon){
-  allpokemon.results.forEach(function(pokemon){
-    fetchPokemonData(pokemon); 
-  })
- })
+// function fetchKantoPokemon(){
+//  fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+//   .then(response => response.json())
+//   .then(function(allpokemon){
+//   allpokemon.results.forEach(function(pokemon){
+//     fetchPokemonData(pokemon); 
+//   })
+//  })
+// }
+
+async function fetchKantoPokemon() {
+  const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+  const data = await response.json()
+  pokeList.value = await Promise.all(data.results.map(pokemon => fetchPokemonData(pokemon)))
 }
 
-function fetchPokemonData(pokemon){
-let url = pokemon.url // <--- this is saving the pokemon url to a variable to us in a fetch.(Ex: https://pokeapi.co/api/v2/pokemon/1/)
-  fetch(url)
-  .then(response => response.json())
-  .then(function(pokeData){
-    pokeList.value.push({ id: pokeData.id, name: pokeData.name, typeOne: pokeData.types[0].type.name, typeTwo: pokeData.types[1]?.type?.name})
-  })
+// function fetchPokemonData(pokemon){
+// let url = pokemon.url // <--- this is saving the pokemon url to a variable to us in a fetch.(Ex: https://pokeapi.co/api/v2/pokemon/1/)
+//   fetch(url)
+//   .then(response => response.json())
+//   .then(function(pokeData){
+//     pokeList.value.push({ id: pokeData.id, name: pokeData.name, typeOne: pokeData.types[0].type.name, typeTwo: pokeData.types[1]?.type?.name})
+//   })
+// }
+
+async function fetchPokemonData(pokemon) {
+  const response = await fetch(pokemon.url)
+  const data = await response.json()
+  return {
+    id: data.id,
+    name: data.name,
+    typeOne: data.types[0].type.name,
+    typeTwo: data.types[1]?.type?.name
+  }
 }
 
 function capitalized(name) {
@@ -49,13 +66,13 @@ onMounted(() => {
   <div id="themeToggle">
     <ThemeToggle />
   </div>
-  <div id = pokeball, v-for="p in pokeList">
-    <div id = poke-container>
-      <div id= top>
+  <div v-for="p in pokeList" :key="p.id">
+    <div id="poke-container">
+      <div id="top">
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
-      <img id = pokeImage :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.id + '.png'">
-      <div id= bottom>
+      <img id="pokeImage" :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.id + '.png'">
+      <div id="bottom">
       <p>Pokedex Number: {{ p.id }}</p>
       <p>Types: {{ capitalized(p.typeOne) }} {{ capitalized(p.typeTwo) }}</p>
     </div>
