@@ -53,6 +53,10 @@ function capitalized(name) {
     }
 }
 
+function pokeImage(pokeID){
+  return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokeID + '.png'
+}
+
 onMounted(() => {
   fetchKantoPokemon()
 })
@@ -71,7 +75,7 @@ onMounted(() => {
       <div id="top">
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
-      <img id="pokeImage" :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.id + '.png'">
+      <img id="pokeImage" :src="pokeImage(p.id)">
       <div id="bottom">
       <p>Pokedex Number: {{ p.id }}</p>
       <p>Types: {{ capitalized(p.typeOne) }} {{ capitalized(p.typeTwo) }}</p>
@@ -96,6 +100,7 @@ h3{
 #top{
     margin-top: 15%;
     text-align: center;
+    color: white;
   }
 
   #bottom{
