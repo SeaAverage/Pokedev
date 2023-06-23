@@ -2,9 +2,11 @@
 import { onMounted } from 'vue';
 import {ref} from 'vue';
 import ThemeToggle from './ThemeToggle.vue';
+import LoadingScreen from './LoadingScreen.vue';
 
 
 const pokeList = ref([])
+var isLoading = true
 
 
 // function fetchKantoPokemon(){
@@ -20,6 +22,7 @@ const pokeList = ref([])
 async function fetchKantoPokemon() {
   const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
   const data = await response.json()
+  isLoading = false
   pokeList.value = await Promise.all(data.results.map(pokemon => fetchPokemonData(pokemon)))
 }
 
@@ -59,23 +62,29 @@ function pokeImage(pokeID){
 
 onMounted(() => {
   fetchKantoPokemon()
+  setTimeout(() => {
+      isLoading = false;
+    }, 1500);
 })
 </script>
 
 
 <template>
+  <LoadingScreen v-if="isLoading"/>
   <div></div>
   <div></div>
   <div></div>
   <div id="themeToggle">
-    <ThemeToggle />
+    <ThemeToggle v-if="!isLoading" />
   </div>
   <div v-for="p in pokeList" :key="p.id">
     <div id="poke-container">
       <div id="top">
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
-      <img id="pokeImage" :src="pokeImage(p.id)">
+      <div id="center">
+        <img id="pokeImage" :src="pokeImage(p.id)">
+      </div>
       <div id="bottom">
       <p>Pokedex Number: {{ p.id }}</p>
       <p>Types: {{ capitalized(p.typeOne) }} {{ capitalized(p.typeTwo) }}</p>
@@ -86,15 +95,18 @@ onMounted(() => {
 
 <style scoped>
 
-
 h3{
   font-weight: bold;
 }
 
+#center{
+  text-align: center;
+}
+
 #pokeImage{
-  margin-left: 25%;
-  margin-right: 25%;
-  margin-bottom: -25px;
+  position: relative;
+  margin: auto;
+  margin-bottom: -1.5em;
 }
 
 #top{
@@ -113,6 +125,8 @@ h3{
     color: black;
     border-style: solid; 
     border-radius: 12px;
+    max-width: 250px;
+    max-height: 250px;
   }
 
   #themeToggle{
