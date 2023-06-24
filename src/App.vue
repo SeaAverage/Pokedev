@@ -56,9 +56,6 @@ function nextPage(){
 
 onMounted(() => {
   fetchKantoPokemon()
-  setTimeout(() => {
-      isLoading = false;
-    }, 1500);
 })
 </script>
 
@@ -91,8 +88,10 @@ onMounted(() => {
 <style scoped>
 
 #smallLoader{
+  background-color: transparent;
   line-height: 0;
   margin: 0;
+  z-index: 0;
 }
 
 h3{
@@ -106,7 +105,8 @@ h3{
 #pokeImage{
   position: relative;
   margin: auto;
-  margin-bottom: -1.5em;
+  margin-top: 0.5em;
+  margin-bottom: -0.5em;
 }
 
 #top{
@@ -125,8 +125,8 @@ h3{
     color: black;
     border-style: solid; 
     border-radius: 12px;
-    max-width: 250px;
-    max-height: 250px;
+    width: 250px;
+    height: 250px;
   }
 
   #themeToggle{
