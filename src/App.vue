@@ -1,39 +1,23 @@
 <script setup>
 import { onMounted } from 'vue';
 import {ref} from 'vue';
-import ThemeToggle from './ThemeToggle.vue';
-import LoadingScreen from './LoadingScreen.vue';
+import ThemeToggle from './components/ThemeToggle.vue';
+import LoadingScreen from './components/LoadingScreen.vue';
+import { Waypoint } from 'vue-waypoint'
 
 
 const pokeList = ref([])
 var isLoading = true
+var limit = 5
 
-
-// function fetchKantoPokemon(){
-//  fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
-//   .then(response => response.json())
-//   .then(function(allpokemon){
-//   allpokemon.results.forEach(function(pokemon){
-//     fetchPokemonData(pokemon); 
-//   })
-//  })
-// }
 
 async function fetchKantoPokemon() {
-  const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+  const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=' + limit)
   const data = await response.json()
   isLoading = false
   pokeList.value = await Promise.all(data.results.map(pokemon => fetchPokemonData(pokemon)))
 }
 
-// function fetchPokemonData(pokemon){
-// let url = pokemon.url // <--- this is saving the pokemon url to a variable to us in a fetch.(Ex: https://pokeapi.co/api/v2/pokemon/1/)
-//   fetch(url)
-//   .then(response => response.json())
-//   .then(function(pokeData){
-//     pokeList.value.push({ id: pokeData.id, name: pokeData.name, typeOne: pokeData.types[0].type.name, typeTwo: pokeData.types[1]?.type?.name})
-//   })
-// }
 
 async function fetchPokemonData(pokemon) {
   const response = await fetch(pokemon.url)
@@ -58,6 +42,16 @@ function capitalized(name) {
 
 function pokeImage(pokeID){
   return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokeID + '.png'
+}
+
+function nextPage(){
+  isLoading = true
+  limit = limit + 20
+  if(limit > 1010){
+    limit = 1010
+    isLoading = false
+  }
+  fetchKantoPokemon()
 }
 
 onMounted(() => {
@@ -91,9 +85,15 @@ onMounted(() => {
     </div>
     </div>
   </div>
+  <div><Waypoint @change="nextPage()"><div><LoadingScreen id="smallLoader" v-if="isLoading"/></div></Waypoint></div>
 </template>
 
 <style scoped>
+
+#smallLoader{
+  line-height: 0;
+  margin: 0;
+}
 
 h3{
   font-weight: bold;
