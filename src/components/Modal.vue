@@ -8,21 +8,20 @@ const props = defineProps({
   <Transition name="modal">
     <div v-if="show" class="modal-mask">
       <div class="modal-container">
+        <div class="modal-close">
+          <slot name="close">
+            <button
+              class="modal-default-button"
+              @click="$emit('close')"
+            >&#10006;</button>
+          </slot>
+        </div>
         <div class="modal-header">
           <slot name="header">default header</slot>
         </div>
 
         <div class="modal-body">
           <slot name="body">default body</slot>
-        </div>
-
-        <div class="modal-footer">
-          <slot name="footer">
-            <button
-              class="modal-default-button"
-              @click="$emit('close')"
-            >Close</button>
-          </slot>
         </div>
       </div>
     </div>
@@ -45,8 +44,9 @@ const props = defineProps({
 .modal-container {
   width: 300px;
   margin: auto;
-  padding: 30px 30px;
-  background-color: #fff;
+  padding: 24px 24px;
+  padding-bottom: 12px;
+  background: linear-gradient(180deg, red 30%, white 30%);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
@@ -54,17 +54,35 @@ const props = defineProps({
 
 .modal-header h3 {
   margin-top: 0;
-  color: black;
+  color: white;
 }
 
 .modal-body {
   margin: 20px 0;
   color: black;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .modal-default-button {
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  margin-top: -16px;
+  margin-right: -16px;
+  border: none;
+  background-color: inherit;
   float: right;
 }
+
+.modal-default-button:hover{
+  background:  rgba(0, 0, 0, 0.2);
+}
+
+.modal-default-button:focus{
+  color:  rgb(194, 194, 194);
+}
+
 
 /*
  * The following styles are auto-applied to elements with
