@@ -4,18 +4,29 @@ import {ref} from 'vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 import LoadingScreen from './components/LoadingScreen.vue';
 import { Waypoint } from 'vue-waypoint'
+import Modal from './components/Modal.vue'
 
 
 const pokeList = ref([])
+var pokeDex = ref()
 var isLoading = true
 var limit = 5
+const showModal = ref(false)
+const currentPokemon = ref()
 
 
-async function fetchKantoPokemon() {
+async function fetchPokemon() {
   const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=' + limit)
   const data = await response.json()
   isLoading = false
-  pokeList.value = await Promise.all(data.results.map(pokemon => fetchPokemonData(pokemon)))
+  pokeList.value = await Promise.all(data.results.map(pokemon => fetchPokemonData(pokemon)))  
+}
+
+
+async function fetchPokedex(pokeID) {
+  const response = await fetch('https://pokeapi.co/api/v2/pokemon-species/' + pokeID)
+  const data = await response.json()
+  pokeDex.value = data.flavor_text_entries[0].flavor_text.replace('\f', " ")
 }
 
 
@@ -26,9 +37,11 @@ async function fetchPokemonData(pokemon) {
     id: data.id,
     name: data.name,
     typeOne: data.types[0].type.name,
-    typeTwo: data.types[1]?.type?.name
+    typeTwo: data.types[1]?.type?.name,
   }
 }
+
+
 
 function capitalized(name) {
     if(name){
@@ -44,6 +57,7 @@ function pokeImage(pokeID){
   return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokeID + '.png'
 }
 
+
 function nextPage(){
   isLoading = true
   limit = limit + 20
@@ -51,11 +65,11 @@ function nextPage(){
     limit = 1010
     isLoading = false
   }
-  fetchKantoPokemon()
+  fetchPokemon()
 }
 
 onMounted(() => {
-  fetchKantoPokemon()
+  fetchPokemon()
 })
 </script>
 
@@ -69,7 +83,7 @@ onMounted(() => {
     <ThemeToggle v-if="!isLoading" />
   </div>
   <div v-for="p in pokeList" :key="p.id">
-    <div id="poke-container">
+    <div id="poke-container" @click="showModal = true, currentPokemon = p, fetchPokedex(currentPokemon.id)">
       <div id="top">
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
@@ -83,6 +97,17 @@ onMounted(() => {
     </div>
   </div>
   <div><Waypoint @change="nextPage()"><div><LoadingScreen id="smallLoader" v-if="isLoading"/></div></Waypoint></div>
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="showModal" @close="showModal = false">
+      <template #header>
+        <h3>{{capitalized(currentPokemon.name)}}</h3>
+      </template>
+      <template #body>
+          <p>{{pokeDex}}</p>
+      </template>
+    </modal>
+  </Teleport>
 </template>
 
 <style scoped>
