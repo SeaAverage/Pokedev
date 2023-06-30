@@ -26,7 +26,7 @@ async function fetchPokemon() {
 async function fetchPokedex(pokeID) {
   const response = await fetch('https://pokeapi.co/api/v2/pokemon-species/' + pokeID)
   const data = await response.json()
-  pokeDex.value = data.flavor_text_entries[0].flavor_text.replace('\f', " ")
+  pokeDex.value = data.flavor_text_entries[1].flavor_text.replace('\f', " ")
 }
 
 
