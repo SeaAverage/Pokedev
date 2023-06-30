@@ -88,7 +88,7 @@ onMounted(() => {
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
       <div id="center">
-        <img id="pokeImage" :src="pokeImage(p.id)">
+        <img id="pokeImage" :src="pokeImage(p.id)" onerror="this.onerror=null;this.src='src/assets/Poke_Ball.png'">
       </div>
       <div id="bottom">
       <p>Pokedex Number: {{ p.id }}</p>
@@ -99,7 +99,7 @@ onMounted(() => {
   <div><Waypoint @change="nextPage()"><div><LoadingScreen id="smallLoader" v-if="isLoading"/></div></Waypoint></div>
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
-    <modal :show="showModal" @close="showModal = false">
+    <modal :show="showModal" @close="showModal = false, pokeDex = ref()">
       <template #header>
         <h3>{{capitalized(currentPokemon.name)}}</h3>
       </template>
@@ -132,6 +132,7 @@ h3{
   margin: auto;
   margin-top: 0.5em;
   margin-bottom: -0.5em;
+  max-width: 96px;
 }
 
 #top{
