@@ -1,6 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
-import {ref} from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 import LoadingScreen from './components/LoadingScreen.vue';
 import { Waypoint } from 'vue-waypoint'
@@ -12,8 +11,6 @@ var pokeDex = ref()
 var isLoading = true
 var limit = 5
 const showModal = ref(false)
-const currentPokemon = ref()
-
 
 async function fetchPokemon() {
   const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=' + limit)
@@ -26,7 +23,17 @@ async function fetchPokemon() {
 async function fetchPokedex(pokeID) {
   const response = await fetch('https://pokeapi.co/api/v2/pokemon-species/' + pokeID)
   const data = await response.json()
-  pokeDex.value = data.flavor_text_entries[1].flavor_text.replace('\f', " ")
+  return data
+}
+
+async function handlePokemonClick(pokeID) {
+  pokeDex.value = await fetchPokedex(pokeID)
+  showModal.value = true
+}
+
+async function handleCloseModal() {
+  showModal.value = false
+  pokeDex.value = null
 }
 
 
@@ -71,6 +78,9 @@ function nextPage(){
 onMounted(() => {
   fetchPokemon()
 })
+const description = computed(() => {
+  return pokeDex.value.flavor_text_entries[1].flavor_text.replace('\f', " ")
+})
 </script>
 
 
@@ -83,7 +93,7 @@ onMounted(() => {
     <ThemeToggle v-if="!isLoading" />
   </div>
   <div v-for="p in pokeList" :key="p.id">
-    <div id="poke-container" @click="showModal = true, currentPokemon = p, fetchPokedex(currentPokemon.id)">
+    <div id="poke-container" @click="handlePokemonClick(p.id)">
       <div id="top">
       <h3>{{ capitalized(p.name) }}</h3>
       </div>
@@ -99,12 +109,12 @@ onMounted(() => {
   <div><Waypoint @change="nextPage()"><div><LoadingScreen id="smallLoader" v-if="isLoading"/></div></Waypoint></div>
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
-    <modal :show="showModal" @close="showModal = false, pokeDex = ref()">
+    <modal :show="showModal" @close="handleCloseModal">
       <template #header>
-        <h3>{{capitalized(currentPokemon.name)}}</h3>
+        <h3>{{capitalized(pokeDex.name)}}</h3>
       </template>
       <template #body>
-          <p>{{pokeDex}}</p>
+          <p>{{ description }}</p>
       </template>
     </modal>
   </Teleport>
